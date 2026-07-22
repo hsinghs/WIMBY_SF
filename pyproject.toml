@@ -5,19 +5,10 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "wimby_sf"
 version = "3.0.0"
-dependencies = [
-    "numpy",
-    "pandas",
-    "geopandas",
-    "pvlib",
-    "rasterio",
-    "shapely",
-    "pyproj",
-    "GDAL",
-    "joblib",
-    "xarray",
-]
-requires-python = ">=3.10"
+description = "A package for the WIMBY shadow flicker functions"
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+license = "MIT"
 authors = [
   {name = "Hsing-Hsuan Chen", email = "h.h.chen@uu.nl"},
   {name = "Luis Ramirez Camargo", email = "l.e.ramirezcamargo@uu.nl"}
@@ -26,16 +17,51 @@ maintainers = [
   {name = "Hsing-Hsuan Chen", email = "h.h.chen@uu.nl"},
   {name = "Luis Ramirez Camargo", email = "l.e.ramirezcamargo@uu.nl"}
 ]
-description = "A package for the WIMBY shadow flicker functions"
-readme = "README.md"
-license = {file = "LICENSE"}
+
+
 classifiers = [
   "Development Status :: 4 - Beta",
   "Programming Language :: Python"
 ]
 
-[tool.setuptools]
-packages = ["wimby_sf"]
+dependencies = [
+    "numpy",
+    "pandas",
+    "geopandas",
+    "pvlib",
+    "rasterio",
+    "rioxarray",
+    "shapely",
+    "pyproj",
+    "joblib",
+    "xarray",
+    "netCDF4",
+    "timezonefinder",
+]
+
+[project.optional-dependencies]
+dev = [
+    "build",
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "mypy",
+    "twine",
+]
+viewshed = [
+    "GDAL",
+]
+
+
+
+
+
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-dir]
+"" = "src"
 
 [tool.setuptools.package-data]
 wimby_sf = [
@@ -53,3 +79,10 @@ addopts = "-ra"
 line-length = 100
 target-version = "py310"
 src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.mypy]
+python_version = "3.10"
+mypy_path = "src"
