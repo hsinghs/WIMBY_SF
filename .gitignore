@@ -37,6 +37,15 @@ htmlcov/
 *.nc
 *.nc4
 
+# Generated raster outputs
+outputs/
+*.tif
+*.tiff
+
+# Optional large local data
+data/raw/
+
+
 # Operating system files
 .DS_Store
 Thumbs.db

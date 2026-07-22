@@ -1328,7 +1328,7 @@ def process_turbine(
     overground_height_high = HUB_HEIGHT + (ROTOR_DIAMETER / 2.0)
 
     print(f"\n[PROCESS] Turbine {idx}: lat={lat}, lon={lon}")
-    output_dir        = r"C:/Users/chen0079/Documents/Shadowtime/wind_test"
+    
 
     # 1) Create the bas DSM and the viewshed
     (base_dsm, viewshed_gdal) = create_base_dsm_and_viewshed(
@@ -1483,6 +1483,7 @@ def merge_sf_datasets_rioxarray(sf_datasets):
 def sf_multiple_turbines(turbine_data, target_epsg_merged, filtered_map=None,
                          solar_latitude_override=None, 
                          solar_longitude_override=None,
+                         output_dir=None,
                          **kwargs):
     """
     Process shadow flicker (SF) simulation for multiple turbines and merge
@@ -1526,6 +1527,7 @@ def sf_multiple_turbines(turbine_data, target_epsg_merged, filtered_map=None,
         # Extract wind-filtered datetimes for each turbine
         filt = filtered_map.get(idx) if filtered_map else None
         sf_xr = process_turbine(idx, lat, lon, filtered_datetimes_index=filt,
+                                output_dir=output_dir,
                                 **kwargs)
 
         if sf_xr is not None:

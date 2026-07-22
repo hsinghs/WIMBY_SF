@@ -11,21 +11,35 @@ import pandas as pd
 from datetime import datetime
 from concurrent.futures import ProcessPoolExecutor, as_completed
 from multiprocessing import freeze_support
+from pathlib import Path
 
 import wimby_sf as WIMBY
 
 
 # === CONFIG ===
-CSV_PATH = r"../data/IT_single_turbine.csv"
-base_dsm_path = r"C:/.../Copernicus_DSM/Copernicus_DSM_30m_COG.tif"
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+CSV_PATH = (PROJECT_ROOT 
+            / "data"
+            / "samples" 
+            / "IT_single_turbine.csv")
+base_dsm_path = (
+    PROJECT_ROOT
+    / "data"
+    / "Copernicus_DSM"
+    / "Copernicus_DSM_30m_COG.tif"
+)
 era5_wind_path = (
-    r"../data/ws_mean_er5_12_by_24/"
-    r"era5_mean_2013-2022_month_by_hour.nc"
+    PROJECT_ROOT
+    / "data"
+    / "ws_mean_er5_12_by_24"
+    / "era5_mean_2013-2022_month_by_hour.nc"
 )
 
 bias_correction_path = (
-    r"../data/ws_mean_er5_12_by_24/"
-    r"ratio_gwa2_era5.nc"
+    PROJECT_ROOT
+    / "data"
+    / "ws_mean_er5_12_by_24"
+    / "ratio_gwa2_era5.nc"
 )
 
 buffer_meters = 5000.0
@@ -98,6 +112,7 @@ def process_turbine(idx, row, output_dir):
         n_jobs=1,  # Each process handles one turbine
         output_resolution=output_resolution,
         filtered_map=filtered,
+        output_dir=output_dir,
     )
 
     # Export reclassified map
@@ -152,7 +167,7 @@ def main():
     df["turbine_id"] = df.index.map(lambda i: f"T{i + 1}")
 
     # Output folder
-    output_dir = r"C:\...\output"
+    output_dir = PROJECT_ROOT / "outputs"
     os.makedirs(output_dir, exist_ok=True)
 
     # Detect turbines that already have both output TIFF files
