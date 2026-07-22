@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wimby_sf"
+version = "3.0.0"
+dependencies = [
+    "numpy",
+    "pandas",
+    "geopandas",
+    "pvlib",
+    "rasterio",
+    "shapely",
+    "pyproj",
+    "GDAL",
+    "joblib",
+    "xarray",
+]
+requires-python = ">=3.10"
+authors = [
+  {name = "Hsing-Hsuan Chen", email = "h.h.chen@uu.nl"},
+  {name = "Luis Ramirez Camargo", email = "l.e.ramirezcamargo@uu.nl"}
+]
+maintainers = [
+  {name = "Hsing-Hsuan Chen", email = "h.h.chen@uu.nl"},
+  {name = "Luis Ramirez Camargo", email = "l.e.ramirezcamargo@uu.nl"}
+]
+description = "A package for the WIMBY shadow flicker functions"
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python"
+]
+
+[tool.setuptools]
+packages = ["wimby_sf"]
+
+[tool.setuptools.package-data]
+wimby_sf = [
+    "py.typed",
+    "data/*.csv",
+    "data/*.nc",
+    "data/*.txt",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
