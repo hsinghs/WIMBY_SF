@@ -20,25 +20,26 @@ import wimby_sf as WIMBY
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 CSV_PATH = (PROJECT_ROOT 
             / "data"
-            / "samples" 
+            / "turbine_info" 
             / "IT_single_turbine.csv")
 base_dsm_path = (
     PROJECT_ROOT
     / "data"
+    / "raw"
     / "Copernicus_DSM"
     / "Copernicus_DSM_30m_COG.tif"
 )
 era5_wind_path = (
     PROJECT_ROOT
     / "data"
-    / "ws_mean_er5_12_by_24"
+    / "ws_mean_era5_12_by_24"
     / "era5_mean_2013-2022_month_by_hour.nc"
 )
 
 bias_correction_path = (
     PROJECT_ROOT
     / "data"
-    / "ws_mean_er5_12_by_24"
+    / "ws_mean_era5_12_by_24"
     / "ratio_gwa2_era5.nc"
 )
 

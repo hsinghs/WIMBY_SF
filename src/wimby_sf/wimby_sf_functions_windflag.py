@@ -419,164 +419,64 @@ def calculate_solar_positions(
     days_resolution=1,
     hours_resolution=1,
     minutes_resolution=1,
-    solar_latitude_override=None,
-    solar_longitude_override=None,
 ):
     """
-    Calculate solar positions for a turbine.
-
-    The original lat/lon represent the physical turbine location.
-
-    Optional solar coordinate overrides allow sensitivity testing of
-    solar geometry without moving the turbine or changing the DEM.
+    Calculate solar positions (azimuth and altitude) for a given turbine
+    location and time range.
 
     Parameters
     ----------
     lat : float
-        Physical turbine latitude in EPSG:4326.
-
+        Latitude of the turbine in EPSG:4326.
     lon : float
-        Physical turbine longitude in EPSG:4326.
-
+        Longitude of the turbine in EPSG:4326.
     start_datetime : datetime
         Start of the simulation period.
-
     end_datetime : datetime
         End of the simulation period.
-
     total_height_high : float
-        Observer altitude used by the solar-position calculation.
-
+        Total observer height (ground elevation + hub + rotor tip).
     days_resolution : int, optional
-        Step size in days.
-
+        Step size in days (default is 1).
     hours_resolution : int, optional
-        Step size in hours.
-
+        Step size in hours (default is 1).
     minutes_resolution : int, optional
-        Step size in minutes.
-
-    solar_latitude_override : float or None, optional
-        Latitude used only for solar-position calculation.
-        When None, the physical turbine latitude is used.
-
-    solar_longitude_override : float or None, optional
-        Longitude used only for solar-position calculation.
-        When None, the physical turbine longitude is used.
+        Step size in minutes (default is 1).
 
     Returns
     -------
-    pandas.DataFrame
-        Solar-position DataFrame indexed by UTC datetime.
+    solar_positions: pandas.DataFrame
+        DataFrame indexed by UTC datetime with columns:
+        - 'sun_azimuth'
+        - 'sun_altitude_top'
     """
 
-    solar_latitude = (
-        lat
-        if solar_latitude_override is None
-        else float(solar_latitude_override)
-    )
-
-    solar_longitude = (
-        lon
-        if solar_longitude_override is None
-        else float(solar_longitude_override)
-    )
-
-    if not -90 <= solar_latitude <= 90:
-        raise ValueError(
-            f"Solar latitude must be between -90 and 90 degrees. "
-            f"Received: {solar_latitude}"
-        )
-
-    if not -180 <= solar_longitude <= 180:
-        raise ValueError(
-            f"Solar longitude must be between -180 and 180 degrees. "
-            f"Received: {solar_longitude}"
-        )
-
-    if days_resolution <= 0:
-        raise ValueError("days_resolution must be greater than zero.")
-
-    if hours_resolution <= 0:
-        raise ValueError("hours_resolution must be greater than zero.")
-
-    if minutes_resolution <= 0:
-        raise ValueError("minutes_resolution must be greater than zero.")
-
-    if end_datetime < start_datetime:
-        raise ValueError(
-            "end_datetime must be later than or equal to start_datetime."
-        )
-
-    total_days = (
-        end_datetime.date() - start_datetime.date()
-    ).days + 1
-
-    days = np.arange(
-        0,
-        total_days,
-        days_resolution,
-    )
-
-    hours = np.arange(
-        0,
-        24,
-        hours_resolution,
-    )
-
-    minutes = np.arange(
-        0,
-        60,
-        minutes_resolution,
-    )
+    total_days = (end_datetime - start_datetime).days + 1
+    days = np.arange(0, total_days, days_resolution)
+    hours = np.arange(0, 24, hours_resolution)
+    minutes = np.arange(0, 60, minutes_resolution)
 
     days_grid, hours_grid, minutes_grid = np.meshgrid(
-        days,
-        hours,
-        minutes,
-        indexing="ij",
+        days, hours, minutes, indexing="ij"
     )
-
     datetimes = (
-        pd.Timestamp(start_datetime)
-        + pd.to_timedelta(
-            days_grid.ravel(),
-            unit="D",
-        )
-        + pd.to_timedelta(
-            hours_grid.ravel(),
-            unit="h",
-        )
-        + pd.to_timedelta(
-            minutes_grid.ravel(),
-            unit="min",
-        )
+        pd.to_datetime(start_datetime)
+        + pd.to_timedelta(days_grid.flatten(), unit="D")
+        + pd.to_timedelta(hours_grid.flatten(), unit="h")
+        + pd.to_timedelta(minutes_grid.flatten(), unit="min")
     )
 
-    # Prevent values beyond the requested end datetime.
-    datetimes = datetimes[
-        datetimes <= pd.Timestamp(end_datetime)
-    ]
+    datetimes_utc = datetimes.tz_localize("UTC")
 
-    if datetimes.tz is None:
-        datetimes_utc = datetimes.tz_localize("UTC")
-    else:
-        datetimes_utc = datetimes.tz_convert("UTC")
-
-    altitude_for_solar = round(
-        float(total_height_high),
-        2,
-    )
-
+    altitude_for_solar = round(total_height_high, 2)
     solar_positions = pvlib.solarposition.pyephem(
         time=datetimes_utc,
-        latitude=solar_latitude,
-        longitude=solar_longitude,
+        latitude=lat,
+        longitude=lon,
         altitude=altitude_for_solar,
         pressure=1013.25,
         temperature=20,
     )
-
     return solar_positions
 
 def calculate_middle_point_shadow_ring(
